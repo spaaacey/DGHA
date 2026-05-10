@@ -22,15 +22,15 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   // ------------------------- NOTE: Variables
-  List<PlaceData> placeList = new List<PlaceData>();
+  List<PlaceData> placeList = <PlaceData>[];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool isLoading = false;
 
   // -------------- NOTE: Dimensions
-  double scrWidth;
-  double scrHeight;
-  double drawerWidth;
+  double scrWidth = 0;
+  double scrHeight = 0;
+  double drawerWidth = 0;
 
   // ------------------------- NOTE: Init
   @override
@@ -131,7 +131,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     child: GestureDetector(
                       onTap: () {
                         setState(() {
-                          _scaffoldKey.currentState.openDrawer();
+                          _scaffoldKey.currentState?.openDrawer();
                         });
                       },
                       child: DghaIcon(
@@ -150,7 +150,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         Navigator.pushNamed(context, SearchScreen.id);
                       },
                       child: DghaIcon(
-                        icon: FontAwesomeIcons.search,
+                        icon: FontAwesomeIcons.magnifyingGlass,
                         backgroundColor: Styles.midnightBlue,
                         iconColor: Styles.yellow,
                       ),

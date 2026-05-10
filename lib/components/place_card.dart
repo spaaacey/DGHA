@@ -8,16 +8,16 @@ import 'package:dgha/models/place.dart';
 class PlaceCard extends StatelessWidget {
   final PlaceData placeData;
 
-  PlaceCard({@required this.placeData});
+  const PlaceCard({required this.placeData, super.key});
 
   @override
   Widget build(BuildContext context) {
     
-    String name = placeData.name;
-    String rating = placeData.avgOverallRating.toStringAsPrecision(2);
-    String reviews = placeData.numOfAllReviews.toString();
-    String type = placeData.types[0];
-    String address = placeData.address; 
+    String name = placeData.name ?? '';
+    String rating = (placeData.avgOverallRating ?? 0).toStringAsPrecision(2);
+    String reviews = (placeData.numOfAllReviews ?? 0).toString();
+    String type = (placeData.types?.isNotEmpty ?? false) ? placeData.types![0] : '';
+    String address = placeData.address ?? '';
 
     return GestureDetector(
       child: Semantics(
@@ -45,17 +45,17 @@ class PlaceCard extends StatelessWidget {
             children: <Widget>[
               Builder(
                 builder: (context) {
-                  return this.placeData.numOfAllReviews > 0
+                  return (placeData.numOfAllReviews ?? 0) > 0
                       ? stars()
                       : noRating();
                 },
               ),
               Text(
-                placeData.name,
+                placeData.name ?? '',
                 style: Styles.h3Style,
               ),
               Text(
-                placeData.address,
+                placeData.address ?? '',
                 style: Styles.pStyle,
               ),
             ],
@@ -75,7 +75,7 @@ class PlaceCard extends StatelessWidget {
         IgnorePointer(
           child: DghaStarRating(
             height: 30,
-            rating: this.placeData.avgOverallRating,
+            rating: placeData.avgOverallRating ?? 0,
             starCount: 5,
           ),
         ),
@@ -83,7 +83,7 @@ class PlaceCard extends StatelessWidget {
           width: Styles.spacing * 0.25,
         ),
         YellowTagHighlight(
-            text: this.placeData.numOfAllReviews.toString(),
+            text: (placeData.numOfAllReviews ?? 0).toString(),
             textStyle: Styles.boldPStyle)
       ],
     );

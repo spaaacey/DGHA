@@ -21,7 +21,7 @@ class LoginScreen extends StatefulWidget {
 
   final bool goToReviewScreen;
   final bool goToReportScreen;
-  final PlaceData placeData;
+  final PlaceData? placeData;
 
   LoginScreen({
     this.goToReviewScreen = false,
@@ -39,9 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
   String password = "";
   String loadingText = "Connecting...";
 
-  double containerHeight;
-  double marginHeight;
-  double buttonMinWidth;
+  double containerHeight = 0;
+  double marginHeight = 0;
+  double buttonMinWidth = 0;
 
   bool isLoading = false;
   bool showLoadingText = false;
@@ -90,15 +90,16 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (exception) {
       try {
+        final desc = (exception as dynamic).description as String?;
         setState(() {
-          if (exception.description == "invalid_username_or_password") {
-            this.loadingText = "Incorrent username or password";
+          if (desc == "invalid_username_or_password") {
+            this.loadingText = "Incorrect username or password";
           } else {
-            this.isLoading = exception.description;
+            this.loadingText = desc ?? 'Login failed';
           }
           this.isLoading = false;
         });
-      } catch (exception) {}
+      } catch (e) {}
     }
   }
 

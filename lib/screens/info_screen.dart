@@ -13,10 +13,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class InfoScreen extends StatefulWidget {
   static const String id = "Info Screen";
-  final String appBarTitle;
-  final List<Language> texts;
+  final String? appBarTitle;
+  final List<Language>? texts;
 
-  InfoScreen({this.appBarTitle, this.texts});
+  const InfoScreen({this.appBarTitle, this.texts, super.key});
 
   @override
   _InfoScreenState createState() => _InfoScreenState();
@@ -24,21 +24,21 @@ class InfoScreen extends StatefulWidget {
 
 class _InfoScreenState extends State<InfoScreen> {
   // used for closing or opening drawer
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String infoText = "";
   String languageName = "";
-  double scrHeight;
-  double scrWidth;
-  double textScale;
-  double popUpHeight;
+  double scrHeight = 0;
+  double scrWidth = 0;
+  double textScale = 1;
+  double popUpHeight = 50;
   final double popUpTextHeight = 50;
   final double popUpMaxHeight = 90;
 
   // drawer properties
-  double drawerWidth;
+  double drawerWidth = 0;
 
-  List<String> spans = new List<String>();
+  List<String> spans = <String>[];
 
   // NOTE: init
   @override
@@ -51,7 +51,7 @@ class _InfoScreenState extends State<InfoScreen> {
   void calcDimensions(Orientation orientation) {
     this.scrWidth = MediaQuery.of(context).size.width;
     this.scrHeight = MediaQuery.of(context).size.height;
-    this.textScale = MediaQuery.of(context).textScaleFactor;
+    this.textScale = MediaQuery.of(context).textScaler.scale(1);
 
     if (this.textScale < 1.5 || this.textScale == 1.5) {
       this.popUpHeight = this.popUpTextHeight;
@@ -66,10 +66,12 @@ class _InfoScreenState extends State<InfoScreen> {
   }
 
   void loadText(int index) {
-    Helper().loadMd(context, widget.texts[index].path).then((data) {
+    final texts = widget.texts;
+    if (texts == null || index >= texts.length) return;
+    Helper().loadMd(context, texts[index].path).then((data) {
       setState(() {
         this.spans = data;
-        languageName = widget.texts[index].languageName;
+        languageName = texts[index].languageName ?? '';
       });
     });
   }
@@ -130,9 +132,7 @@ class _InfoScreenState extends State<InfoScreen> {
                   hint: "Double tap to open side bar menu",
                   child: GestureDetector(
                     onTap: () {
-                      setState(() {
-                        _scaffoldKey.currentState.openDrawer();
-                      });
+                      _scaffoldKey.currentState?.openDrawer();
                     },
                     child: DghaIcon(
                       icon: FontAwesomeIcons.bars,
@@ -144,7 +144,9 @@ class _InfoScreenState extends State<InfoScreen> {
                 childTwo: Container(
                   child: PopupMenuButton(
                     onSelected: (choice) {
-                      int newLangIndex = widget.texts.indexWhere((lang) => lang.languageName == choice);
+                      final texts = widget.texts;
+                      if (texts == null) return;
+                      int newLangIndex = texts.indexWhere((lang) => lang.languageName == choice);
                       loadText(newLangIndex);
                     },
                     child: Semantics(
@@ -158,7 +160,7 @@ class _InfoScreenState extends State<InfoScreen> {
                       ),
                     ),
                     itemBuilder: (BuildContext ctxt) {
-                      return widget.texts.map((Language lang) {
+                      return (widget.texts ?? <Language>[]).map((Language lang) {
                         return PopupMenuItem(
                           height: this.popUpHeight,
                           value: lang.languageName,
@@ -166,7 +168,7 @@ class _InfoScreenState extends State<InfoScreen> {
                             hint: "Double tap to select ${lang.languageName} translation.",
                             child: Container(
                               child: Text(
-                                lang.languageName,
+                                lang.languageName ?? '',
                                 style: Styles.txtBtnStyle,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

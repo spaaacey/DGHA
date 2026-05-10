@@ -12,7 +12,7 @@ class Data {
   static final String rootTestingUrl = "https://dgha-api-testing.azurewebsites.net"; 
 
   // -------------------------------------- NAVIGATION
-  static List<PageNav> pages = new List<PageNav>();
+  static List<PageNav> pages = <PageNav>[];
   // -------------------------------------- CARD DATA
   // ------------- GENERAL INFO CARDS
   static final List<InfoMenuCardData> generalInfoCardData = [guideDogCardData, accessCardData];
@@ -134,7 +134,7 @@ class Data {
       title: "Guide Dogs", pageToNavigateTo: InfoScreen.id, texts: infoLang, icon: FontAwesomeIcons.paw, semanticLabel: "Guide Dogs", semanticHint: "Double tap to read more about Guide Dogs");
 
   static final MenuTileData guideDogAccessTileData = new MenuTileData(
-      title: "Access", pageToNavigateTo: InfoScreen.id, texts: accessLang, icon: FontAwesomeIcons.unlockAlt, semanticLabel: "Access", semanticHint: "Double tap to read more about Guide Dogs Access");
+      title: "Access", pageToNavigateTo: InfoScreen.id, texts: accessLang, icon: FontAwesomeIcons.unlockKeyhole, semanticLabel: "Access", semanticHint: "Double tap to read more about Guide Dogs Access");
 
   // ---------------- LAW TILES
   static final MenuTileData lawsTilesListData = new MenuTileData(
@@ -196,13 +196,13 @@ class Data {
 
   static final MenuTileData donateTileData = new MenuTileData(
       title: "Donation",
-      icon: FontAwesomeIcons.handHoldingUsd,
+      icon: FontAwesomeIcons.handHoldingDollar,
       link: "http://dgha.org.au/dgha/membership/",
       semanticLabel: "Donation",
       semanticHint: "Double tap to go to the Guide Dog Handler Australia Donation page");
 
   static final MenuTileData login =
-      new MenuTileData(title: "Login", pageToNavigateTo: LoginScreen.id, icon: FontAwesomeIcons.signInAlt, semanticLabel: "Login", semanticHint: "Double tap to go to the Login/Register page");
+      new MenuTileData(title: "Login", pageToNavigateTo: LoginScreen.id, icon: FontAwesomeIcons.rightToBracket, semanticLabel: "Login", semanticHint: "Double tap to go to the Login/Register page");
 
   // ---------------------------------------- LANGUAGES
   // ---------------------- GENERAL INFO LANGUAGES

@@ -13,9 +13,9 @@ enum ActivePageEnum {
 }
 
 class DGHABotNav extends StatelessWidget {
-  final ActivePageEnum activeTab;
+  final ActivePageEnum? activeTab;
 
-  DGHABotNav({this.activeTab});
+  const DGHABotNav({this.activeTab, super.key});
 
   @override
   Widget build(BuildContext context) {

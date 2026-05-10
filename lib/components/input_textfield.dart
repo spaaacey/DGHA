@@ -7,20 +7,20 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // So that the input in the textfield won't be cleared when it is unfocused
 
 class UserInputTextField extends StatefulWidget {
-  final IconData prefixIcon;
-  final String hintText;
+  final IconData? prefixIcon;
+  final String? hintText;
   final bool obscureText;
   final bool highlightRed;
-  final Function(String) onChange;
-  final TextInputType keyboardType;
+  final Function(String)? onChange;
+  final TextInputType? keyboardType;
   final bool autoFocus;
-  final Function prefixOnTap;
-  final Function(String) onSubmit;
+  final Function? prefixOnTap;
+  final Function(String)? onSubmit;
   final bool changeFocusColour;
   final String textFieldLabel;
   final bool activePrefix;
 
-  UserInputTextField(
+  const UserInputTextField(
       {this.prefixIcon,
       this.activePrefix = true,
       this.hintText,
@@ -32,7 +32,8 @@ class UserInputTextField extends StatefulWidget {
       this.prefixOnTap,
       this.onSubmit,
       this.textFieldLabel = "",
-      this.changeFocusColour = true});
+      this.changeFocusColour = true,
+      super.key});
 
   @override
   _UserInputTextFieldState createState() => _UserInputTextFieldState();
@@ -104,7 +105,7 @@ class _UserInputTextFieldState extends State<UserInputTextField> {
             builder: (context) {
               if (widget.prefixIcon != null) {
                 var dghaIcon = DghaIcon(
-                  icon: widget.prefixIcon,
+                  icon: widget.prefixIcon!,
                   iconColor: _setPrefixColour(),
                   backgroundColor: Colors.transparent,
                 );
@@ -115,7 +116,7 @@ class _UserInputTextFieldState extends State<UserInputTextField> {
                     hint: "Double tap to go back to Explore Page",
                     child: GestureDetector(
                       onTap: () {
-                        widget.prefixOnTap();
+                        widget.prefixOnTap?.call();
                       },
                       child: dghaIcon,
                     ),
@@ -140,10 +141,10 @@ class _UserInputTextFieldState extends State<UserInputTextField> {
                 controller: _txtController,
                 focusNode: focus,
                 onSubmitted: (value) {
-                  widget.onSubmit(value);
+                  widget.onSubmit?.call(value);
                 },
                 onChanged: (value) {
-                  widget.onChange(value);
+                  widget.onChange?.call(value);
                 },
                 style: Styles.pStyle,
                 cursorColor: Styles.midnightBlue,
@@ -176,7 +177,7 @@ class _UserInputTextFieldState extends State<UserInputTextField> {
                   },
                   child: Container(
                     child: DghaIcon(
-                      icon: FontAwesomeIcons.times,
+                      icon: FontAwesomeIcons.xmark,
                       iconColor: focus.hasFocus ? Styles.midnightBlue : Colors.transparent,
                       backgroundColor: Colors.transparent,
                     ),

@@ -6,28 +6,28 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MenuExpansionTile extends StatefulWidget {
-  final MenuTileData tile;
+  final MenuTileData? tile;
 
-  MenuExpansionTile({this.tile});
+  const MenuExpansionTile({this.tile, super.key});
 
   @override
   _MenuExpansionTileState createState() => _MenuExpansionTileState();
 }
 
 class _MenuExpansionTileState extends State<MenuExpansionTile> with TickerProviderStateMixin {
-  AnimationController _animationController;
+  late AnimationController _animationController;
   bool isCollapsed = false;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
   }
 
   @override
   void dispose() {
-    super.dispose();
     _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -36,59 +36,53 @@ class _MenuExpansionTileState extends State<MenuExpansionTile> with TickerProvid
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Expanded(
-          child: Container(
-            child: Stack(
-              children: <Widget>[
-                Semantics(
-                  excludeSemantics: true,
-                  child: Row(
-                    children: <Widget>[
-                      DghaIcon(
-                        icon: widget.tile.icon,
-                        backgroundColor: Styles.midnightBlue,
-                        iconColor: Styles.yellow,
-                      ),
-                      SizedBox(width: 20),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.only(top: 10),
-                          child: Text(
-                            widget.tile.title,
-                            style: Styles.txtBtnStyle,
-                          ),
+          child: Stack(
+            children: <Widget>[
+              Semantics(
+                excludeSemantics: true,
+                child: Row(
+                  children: <Widget>[
+                    DghaIcon(
+                      icon: widget.tile?.icon ?? Icons.info,
+                      backgroundColor: Styles.midnightBlue,
+                      iconColor: Styles.yellow,
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text(
+                          widget.tile?.title ?? '',
+                          style: Styles.txtBtnStyle,
                         ),
                       ),
-                      Icon(
-                        this.isCollapsed ? FontAwesomeIcons.solidCaretSquareUp : FontAwesomeIcons.caretSquareDown,
-                        color: Styles.midnightBlue,
-                        size: 30,
-                      )
-                    ],
-                  ),
-                ),
-                ExpansionTile(
-                  title: Semantics(
-                    button: true,
-                    hint: this.isCollapsed ? "Double tap to close menu" : widget.tile.semanticHint,
-
-                    // hide the text because its ugly lol.
-                    child: Text(
-                      'Laws',
-                      style: TextStyle(color: Styles.transparent),
                     ),
-                  ),
-                  onExpansionChanged: (bool) {
-                    setState(() {
-                      this.isCollapsed = !this.isCollapsed;
-                    });
-                  },
-
-                  // hide the icon because its also ugly
-                  trailing: Text(""),
-                  children: _buildChildren(),
+                    Icon(
+                      isCollapsed ? FontAwesomeIcons.solidSquareCaretUp : FontAwesomeIcons.squareCaretDown,
+                      color: Styles.midnightBlue,
+                      size: 30,
+                    )
+                  ],
                 ),
-              ],
-            ),
+              ),
+              ExpansionTile(
+                title: Semantics(
+                  button: true,
+                  hint: isCollapsed ? "Double tap to close menu" : widget.tile?.semanticHint,
+                  child: Text(
+                    'Laws',
+                    style: const TextStyle(color: Styles.transparent),
+                  ),
+                ),
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    isCollapsed = !isCollapsed;
+                  });
+                },
+                trailing: const Text(""),
+                children: _buildChildren(),
+              ),
+            ],
           ),
         )
       ],
@@ -96,13 +90,12 @@ class _MenuExpansionTileState extends State<MenuExpansionTile> with TickerProvid
   }
 
   List<Widget> _buildChildren() {
-    List<Widget> children = new List<Widget>();
-    for (int i = 0; i < widget.tile.children.length; i++) {
-      Widget w = MenuTile(
-        tile: widget.tile.children[i],
+    List<Widget> children = <Widget>[];
+    for (int i = 0; i < (widget.tile?.children.length ?? 0); i++) {
+      children.add(MenuTile(
+        tile: widget.tile!.children[i],
         paddingLeft: 95,
-      );
-      children.add(w);
+      ));
     }
     return children;
   }

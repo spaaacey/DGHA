@@ -7,7 +7,7 @@ class YellowTagHighlight extends StatelessWidget {
   final double size;
   final double verticalPadding; 
 
-  YellowTagHighlight({@required this.text, @required this.textStyle, this.size = 28, this.verticalPadding = 0});
+  const YellowTagHighlight({required this.text, required this.textStyle, this.size = 28, this.verticalPadding = 0, super.key});
 
   @override
   Widget build(BuildContext context) {

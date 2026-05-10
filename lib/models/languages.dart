@@ -1,6 +1,6 @@
 class Language {
-  final String languageName;
-  final String path;
+  final String? languageName;
+  final String? path;
 
-  Language({this.languageName, this.path}); 
+  Language({this.languageName, this.path});
 }

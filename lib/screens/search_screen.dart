@@ -20,9 +20,9 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   // ------------------------- NOTE: Variables
-  SearchPlace searchPlace = new SearchPlace(places: List<PlaceData>(), nextPageToken: '');
-  String prevInput;
-  String input;
+  SearchPlace searchPlace = SearchPlace(places: <PlaceData>[], nextPageToken: '');
+  String? prevInput;
+  String? input;
   bool isLoading = false;
   bool isFirstLoad = true;
 
@@ -39,7 +39,7 @@ class _SearchScreenState extends State<SearchScreen> {
       this.isLoading = true;
     });
 
-    SearchPlace _spr = await PlaceService.getSearchedPlaces(this.input, this.searchPlace.nextPageToken);
+    SearchPlace _spr = await PlaceService.getSearchedPlaces(this.input ?? '', this.searchPlace.nextPageToken ?? '');
 
     try {
       setState(() {

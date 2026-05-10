@@ -1,17 +1,17 @@
 import 'dart:convert';
 
 class PlaceData {
-  String placeId;
-  String name;
-  String address;
-  String state;
-  List<String> types;
-  double avgOverallRating;
-  double avgCustomerRating;
-  double avgAmentitiesRating;
-  double avgLocationRating;
-  int numOfAllReviews;
-  int numOfWrittenReviews;
+  String? placeId;
+  String? name;
+  String? address;
+  String? state;
+  List<String>? types;
+  double? avgOverallRating;
+  double? avgCustomerRating;
+  double? avgAmentitiesRating;
+  double? avgLocationRating;
+  int? numOfAllReviews;
+  int? numOfWrittenReviews;
 
   PlaceData({
     this.placeId,
@@ -33,12 +33,12 @@ class PlaceData {
         address: json["address"],
         state: json["state"],
         types: json["types"] != null ? List<String>.from(json["types"].map((x) => x)) : null,
-        avgOverallRating: json["avgOverallRating"].toDouble(),
-        avgCustomerRating: json["avgCustomerRating"].toDouble(),
-        avgAmentitiesRating: json["avgAmentitiesRating"].toDouble(),
-        avgLocationRating: json["avgLocationRating"].toDouble(),
+        avgOverallRating: json["avgOverallRating"]?.toDouble(),
+        avgCustomerRating: json["avgCustomerRating"]?.toDouble(),
+        avgAmentitiesRating: json["avgAmentitiesRating"]?.toDouble(),
+        avgLocationRating: json["avgLocationRating"]?.toDouble(),
         numOfAllReviews: json["numOfAllReviews"],
-        numOfWrittenReviews: json["numOfWrittenReviews"]
+        numOfWrittenReviews: json["numOfWrittenReviews"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -46,13 +46,13 @@ class PlaceData {
         "name": name,
         "address": address,
         "state": state,
-        "types": List<dynamic>.from(types.map((x) => x)),
+        "types": types != null ? List<dynamic>.from(types!.map((x) => x)) : null,
         "avgOverallRating": avgOverallRating,
         "avgCustomerRating": avgCustomerRating,
         "avgAmentitiesRating": avgAmentitiesRating,
         "avgLocationRating": avgLocationRating,
         "numOfAllReviews": numOfAllReviews,
-        "numOfWrittenReviews": numOfWrittenReviews
+        "numOfWrittenReviews": numOfWrittenReviews,
       };
 
   static List<PlaceData> decodePlaceDataList(String data) {

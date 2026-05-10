@@ -5,12 +5,12 @@ class DghaStarRating extends StatefulWidget {
   double rating;
   final double height;
   final int starCount;
-  final Function(double rating) onTap;
+  final Function(double rating)? onTap;
   final bool changeRatingOnTap;
 
   DghaStarRating({
-    @required this.rating,
-    @required this.height,
+    required this.rating,
+    required this.height,
     this.starCount = 5,
     this.onTap,
     this.changeRatingOnTap = true,
@@ -68,7 +68,7 @@ class _DghaStarRatingState extends State<DghaStarRating> {
                           widget.rating = index.toDouble() + 1;
                         });
                       }
-                      if (widget.onTap != null) widget.onTap(widget.rating);
+                      widget.onTap?.call(widget.rating);
                     },
                   ),
                   //----------Star Rating Outline

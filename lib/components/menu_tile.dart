@@ -6,14 +6,15 @@ import 'package:dgha/misc/styles.dart';
 import 'package:dgha/models/menu_tile_data.dart';
 
 class MenuTile extends StatelessWidget {
-  final MenuTileData tile;
-  final double paddingLeft;
+  final MenuTileData? tile;
+  final double? paddingLeft;
 
-  MenuTile({this.tile, this.paddingLeft});
+  const MenuTile({this.tile, this.paddingLeft, super.key});
 
   _launchUrl(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     }
   }
 
@@ -21,42 +22,42 @@ class MenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (tile.onTap == null) {
-          if (tile.link == null) {
+        if (tile?.onTap == null) {
+          if (tile?.link == null) {
             Navigator.pop(context);
-            Navigator.of(context).pushNamed(tile.pageToNavigateTo, arguments: InfoScrArgs(title: tile.title, texts: tile.texts));
+            Navigator.of(context).pushNamed(tile?.pageToNavigateTo ?? '', arguments: InfoScrArgs(title: tile?.title, texts: tile?.texts));
           } else {
-            _launchUrl(tile.link);
+            _launchUrl(tile!.link!);
           }
         } else {
-          tile.onTap();
+          tile!.onTap!();
         }
       },
       child: Semantics(
         button: true,
-        label: this.tile.semanticLabel,
-        hint: this.tile.semanticHint,
+        label: tile?.semanticLabel,
+        hint: tile?.semanticHint,
         excludeSemantics: true,
         child: Container(
-          constraints: BoxConstraints(minHeight: 50),
+          constraints: const BoxConstraints(minHeight: 50),
           child: Row(
             children: <Widget>[
               Container(
-                child: tile.icon != null
+                child: tile?.icon != null
                     ? DghaIcon(
-                        icon: tile.icon,
+                        icon: tile!.icon!,
                         backgroundColor: Styles.midnightBlue,
                         iconColor: Styles.yellow,
                       )
                     : Container(),
               ),
-              SizedBox(width: this.paddingLeft != null ? this.paddingLeft : 20),
+              SizedBox(width: paddingLeft ?? 20),
               Expanded(
                 flex: 8,
                 child: Container(
-                  padding: EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Text(
-                    this.tile.title,
+                    tile?.title ?? '',
                     style: Styles.txtBtnStyle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

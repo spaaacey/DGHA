@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MenuDrawer extends StatefulWidget {
-  final double width;
+  final double? width;
 
   MenuDrawer({this.width});
 
@@ -81,8 +81,8 @@ class _MenuDrawerState extends State<MenuDrawer> {
                   tile: new MenuTileData(
                     title: isLoggedIn ? "Sign out" : "Sign in",
                     icon: isLoggedIn
-                        ? FontAwesomeIcons.signOutAlt
-                        : FontAwesomeIcons.signInAlt,
+                        ? FontAwesomeIcons.rightFromBracket
+                        : FontAwesomeIcons.rightToBracket,
                     semanticLabel: isLoggedIn ? "Log out" : "Login",
                     semanticHint: isLoggedIn
                         ? "Double tap to sign out"

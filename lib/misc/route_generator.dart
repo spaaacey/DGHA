@@ -8,6 +8,7 @@ import 'package:dgha/screens/search_screen.dart';
 import 'package:dgha/screens/user_rating_screen.dart';
 import 'package:dgha/screens/register_screen.dart';
 import 'package:dgha/screens/place_details_screen.dart';
+import 'package:dgha/models/place.dart';
 import 'package:flutter/material.dart';
 
 class RouteGenerator {
@@ -19,36 +20,36 @@ class RouteGenerator {
         return MaterialPageRoute(
             builder: (_) => LoginScreen(
                   goToReviewScreen: true,
-                  placeData: settings.arguments,
+                  placeData: settings.arguments as PlaceData?,
                 ));
       case LoginScreen.id_report:
         return MaterialPageRoute(
             builder: (_) => LoginScreen(
                   goToReportScreen: true,
-                  placeData: settings.arguments,
+                  placeData: settings.arguments as PlaceData?,
                 ));
       case InfoScreen.id:
-        InfoScrArgs infoScrArgs;
+        InfoScrArgs? infoScrArgs;
         try {
-          infoScrArgs = settings.arguments;
+          infoScrArgs = settings.arguments as InfoScrArgs;
         } catch (e) {}
         return MaterialPageRoute(
             builder: (_) => InfoScreen(
-                  appBarTitle: infoScrArgs.title,
-                  texts: infoScrArgs.texts,
+                  appBarTitle: infoScrArgs?.title,
+                  texts: infoScrArgs?.texts,
                 ));
       case InfoMenuScreen.id:
         return MaterialPageRoute(builder: (_) => InfoMenuScreen());
       case ExploreScreen.id:
         return MaterialPageRoute(builder: (_) => ExploreScreen());
       case PlaceDetailsScreen.id:
-        return MaterialPageRoute(builder: (_) => PlaceDetailsScreen(settings.arguments));
+        return MaterialPageRoute(builder: (_) => PlaceDetailsScreen(settings.arguments as PlaceData));
       case UserRatingScreen.id:
-        return MaterialPageRoute(builder: (_) => UserRatingScreen(settings.arguments));
+        return MaterialPageRoute(builder: (_) => UserRatingScreen(settings.arguments as PlaceData));
       case RegisterScreen.id:
         return MaterialPageRoute(builder: (_) => RegisterScreen());
       case ReportScreen.id:
-        return MaterialPageRoute(builder: (_) => ReportScreen(settings.arguments));
+        return MaterialPageRoute(builder: (_) => ReportScreen(settings.arguments as PlaceData));
       case SearchScreen.id:
         return MaterialPageRoute(builder: (_) => SearchScreen());
       default:

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:dgha/models/review.dart';
 
 class ReviewContainer extends StatelessWidget {
-  final ReviewData review;
-  ReviewContainer({this.review});
+  final ReviewData? review;
+  const ReviewContainer({this.review, super.key});
 
   @override
   Widget build(BuildContext context) {
-    DateTime dateAdded = review.formatDateAdded();
+    DateTime dateAdded = review?.formatDateAdded() ?? DateTime.now();
 
     return Container(
       child: Column(
@@ -41,16 +41,14 @@ class ReviewContainer extends StatelessWidget {
 
           // ------------------ NOTE: Stars
           Semantics(
-            label: "Rated: ${this.review.overallRating.toString()} out of 5 stars",
+            label: "Rated: ${review?.overallRating.toString()} out of 5 stars",
             excludeSemantics: true,
             explicitChildNodes: false,
-            child: Container(
-              child: RatingWithTitle(
+            child: RatingWithTitle(
                 title: "Rated: ",
-                rating: this.review.overallRating.toDouble(),
+                rating: (review?.overallRating ?? 0).toDouble(),
                 isSmall: true,
                 spaceBetween: false,
-              ),
             ),
           ),
 
@@ -60,7 +58,7 @@ class ReviewContainer extends StatelessWidget {
             child: Container(
               width: double.infinity,
               child: SelectableText(
-                this.review.comment,
+                review?.comment ?? '',
                 style: Styles.pStyle,
               ),
             ),

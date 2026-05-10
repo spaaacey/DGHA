@@ -2,10 +2,10 @@ import 'package:dgha/misc/styles.dart';
 import 'package:flutter/material.dart';
 
 class DghaTextButton extends StatelessWidget {
-  final double minWidth;
-  final String text;
-  final TextStyle textStyle;
-  final Function() onTap;
+  final double? minWidth;
+  final String? text;
+  final TextStyle? textStyle;
+  final Function()? onTap;
   final Color colour;
   final double bottomMargin;
 
@@ -17,7 +17,7 @@ class DghaTextButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          constraints: BoxConstraints(minWidth: this.minWidth),
+          constraints: BoxConstraints(minWidth: this.minWidth ?? 0),
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           margin: EdgeInsets.only(bottom: this.bottomMargin),
           decoration: BoxDecoration(
@@ -27,7 +27,7 @@ class DghaTextButton extends StatelessWidget {
               BoxShadow(color: Styles.grey, blurRadius: 3, offset: Offset(2, 3)),
             ],
           ),
-          child: Text(this.text, textAlign: TextAlign.center, style: this.textStyle),
+          child: Text(this.text ?? '', textAlign: TextAlign.center, style: this.textStyle),
         ),
       ),
     );

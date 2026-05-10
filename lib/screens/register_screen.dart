@@ -18,14 +18,14 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   // ------------------------ NOTE: Variables
-  String email;
-  String passwordV1;
-  String passwordV2;
+  String? email;
+  String? passwordV1;
+  String? passwordV2;
   String loadingText = "Connecting...";
 
-  double containerHeight;
-  double marginHeight;
-  double buttonMinWidth;
+  double containerHeight = 0;
+  double marginHeight = 0;
+  double buttonMinWidth = 0;
 
   bool passwordMatch = true;
   bool isLoading = false;
@@ -56,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         print("TEST: ${DghaApi.currentClient}");
         //Create Account
         final Response newUser =
-            await DghaApi.postAccount(this.email, this.passwordV1);
+            await DghaApi.postAccount(this.email ?? '', this.passwordV1 ?? '');
 
         if (newUser.statusCode == 201) {
           //Login
@@ -229,9 +229,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ? Styles.grey
                                   : Styles.midnightBlue,
                               onTap: () {
-                                if (this.email != "" &&
-                                    this.passwordV1 != "" &&
-                                    this.passwordV2 != "" &&
+                                if ((this.email ?? '') != "" &&
+                                    (this.passwordV1 ?? '') != "" &&
+                                    (this.passwordV2 ?? '') != "" &&
                                     this.isLoading == false) {
                                   this.signUp();
                                 }

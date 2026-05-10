@@ -37,7 +37,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
   bool isLoading = false;
   bool isFirstLoad = true;
 
-  List<ReviewData> reviewList = new List<ReviewData>();
+  List<ReviewData> reviewList = <ReviewData>[];
   bool databaseHasMoreReviews = false;
   int setNum = 0;
 
@@ -46,7 +46,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
   void initState() {
     super.initState();
 
-    if (widget.placeData.numOfWrittenReviews > 0) {
+    if ((widget.placeData.numOfWrittenReviews ?? 0) > 0) {
       getReviews();
     }
 
@@ -66,11 +66,11 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
     });
 
     List<ReviewData> _reviewList = await ReviewService.getReviewSetById(
-        widget.placeData.placeId, this.setNum);
+        widget.placeData.placeId ?? '', this.setNum);
 
     setState(() {
       this.reviewList.addAll(_reviewList);
-      this.setNum = this.setNum + 1; // can't use increment (i++)
+      this.setNum = this.setNum + 1;
     });
 
     try {
@@ -95,8 +95,8 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
 
   // ------------------------- NOTE: Get Rating by ID
   Future getRatingById() async {
-    PlaceData newPlaceData =
-        await PlaceService.getPlaceRatingById(widget.placeData.placeId);
+    PlaceData? newPlaceData =
+        await PlaceService.getPlaceRatingById(widget.placeData.placeId ?? '');
 
     if (newPlaceData != null) {
       setState(() {
@@ -117,7 +117,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
           context, UserRatingScreen.id,
           arguments: widget.placeData);
 
-      if (userHasAddedNewReview) {
+      if (userHasAddedNewReview == true) {
         setState(() {
           this.reviewList.clear();
           this.setNum = 0;
@@ -150,29 +150,29 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
     }
   }
 
-  void _launchMap(String placeId) async {
+  void _launchMap(String? placeId) async {
     final url =
-        'https://www.google.com/maps/search/?api=1&query=Google&query_place_id=$placeId';
+        'https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${placeId ?? ''}';
+    final uri = Uri.parse(url);
 
-    if (await canLaunch(url)) {
-      await launch(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     } else {
       print("something wrong!");
     }
   }
 
   List<String> getTypes() {
-    List<String> types = new List<String>();
+    List<String> types = <String>[];
 
-    for (int i = 0; i < widget.placeData.types.length; i++) {
-      if (Data.allPlaceTypes.contains(widget.placeData.types[i])) {
-        // Replace _ with a space
-        String type = widget.placeData.types[i].replaceAll(RegExp('_'), ' ');
+    final placeTypes = widget.placeData.types ?? [];
+    for (int i = 0; i < placeTypes.length; i++) {
+      if (Data.allPlaceTypes.contains(placeTypes[i])) {
+        String type = placeTypes[i].replaceAll(RegExp('_'), ' ');
         List<String> splitStr = type.split(" ");
 
         String word = "";
         for (int j = 0; j < splitStr.length; j++) {
-          //Captitalize first letter
           word += '${splitStr[j][0].toUpperCase()}${splitStr[j].substring(1)} ';
         }
 
@@ -193,8 +193,6 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // String types = getTypes();
-
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -211,12 +209,12 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
                   // ---------------- NOTE: Place Name
                   Container(
                       child:
-                          Text(widget.placeData.name, style: Styles.h2Style)),
+                          Text(widget.placeData.name ?? '', style: Styles.h2Style)),
 
                   // ---------------- NOTE: Address
                   Container(
                       child:
-                          Text(widget.placeData.address, style: Styles.pStyle)),
+                          Text(widget.placeData.address ?? '', style: Styles.pStyle)),
 
                   SizedBox(height: Styles.spacing * 0.5),
 
@@ -282,7 +280,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
                     text: "Report Venue",
                     onTap: this.reportBtnHandler,
                     semanticsHint:
-                        "Double tap to report ${widget.placeData.name} to D G H A",
+                        "Double tap to report ${widget.placeData.name ?? ''} to D G H A",
                   ),
                   SizedBox(height: Styles.spacing),
                 ],
@@ -293,7 +291,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
             DghaAppBar(
               text: "Reviews",
               isMenu: true,
-              semanticLabel: "${widget.placeData.name} Reviews",
+              semanticLabel: "${widget.placeData.name ?? ''} Reviews",
               childOne: Semantics(
                 button: true,
                 label: "Back",
@@ -320,7 +318,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
                     _launchMap(widget.placeData.placeId);
                   },
                   child: DghaIcon(
-                    icon: FontAwesomeIcons.mapMarkerAlt,
+                    icon: FontAwesomeIcons.locationDot,
                     iconColor: Styles.yellow,
                     backgroundColor: Styles.midnightBlue,
                   ),
@@ -349,7 +347,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
           child: Semantics(
             label: "Write Review",
             button: true,
-            hint: "Double tap to leave a review for ${widget.placeData.name}",
+            hint: "Double tap to leave a review for ${widget.placeData.name ?? ''}",
             excludeSemantics: true,
             child: DghaIcon(
               icon: FontAwesomeIcons.pen,
@@ -362,21 +360,21 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
     );
   }
 
-  Semantics buildStar({double rating, String ratingLabel, bool isBigStar}) {
-    String ratingStr = rating.toStringAsPrecision(2);
+  Semantics buildStar({double? rating, String? ratingLabel, bool isBigStar = false}) {
+    String ratingStr = (rating ?? 0).toStringAsPrecision(2);
     return Semantics(
       label: "$ratingLabel: $ratingStr stars",
       child: Center(
         child: isBigStar
-            ? buildBigStar(rating)
-            : buildSmallStar(rating, ratingLabel),
+            ? buildBigStar(rating ?? 0)
+            : buildSmallStar(rating ?? 0, ratingLabel ?? ''),
       ),
     );
   }
 
   Widget buildBigStar(double rating) {
     return Semantics(
-      label: "${widget.placeData.numOfAllReviews} rated",
+      label: "${widget.placeData.numOfAllReviews ?? 0} rated",
       excludeSemantics: true,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -390,7 +388,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
             width: Styles.spacing * 0.25,
           ),
           YellowTagHighlight(
-            text: widget.placeData.numOfAllReviews.toString(),
+            text: (widget.placeData.numOfAllReviews ?? 0).toString(),
             textStyle: Styles.boldPStyle,
             size: 30,
             verticalPadding: 2,
@@ -425,7 +423,7 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
                       ))
                   .toList(),
             );
-          } else if (widget.placeData.numOfWrittenReviews > 0 &&
+          } else if ((widget.placeData.numOfWrittenReviews ?? 0) > 0 &&
               this.isFirstLoad) {
             return Column(
               children: <Widget>[
@@ -463,20 +461,20 @@ class _PlaceDetailsScreenState extends State<PlaceDetailsScreen> {
       onTap: this.reviewBtnHandler,
       bottomPadding: Styles.spacing,
       semanticsHint:
-          "Double tap to leave the first review for ${widget.placeData.name}",
+          "Double tap to leave the first review for ${widget.placeData.name ?? ''}",
     );
   }
 }
 
 class PlaceDetailBtnText extends StatelessWidget {
   final String text;
-  final Function onTap;
+  final Function? onTap;
   final double bottomPadding;
-  final String semanticsHint;
+  final String? semanticsHint;
 
   PlaceDetailBtnText({
-    @required this.text,
-    @required this.onTap,
+    required this.text,
+    required this.onTap,
     this.bottomPadding = 0,
     this.semanticsHint,
   });
@@ -505,7 +503,7 @@ class PlaceDetailBtnText extends StatelessWidget {
               textStyle: Styles.yellowTxtBtnStyle,
               colour: Styles.midnightBlue,
               onTap: () {
-                onTap();
+                onTap?.call();
               },
             ),
           ),

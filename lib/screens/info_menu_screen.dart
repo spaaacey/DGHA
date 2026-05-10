@@ -22,12 +22,12 @@ class _InfoMenuScreenState extends State<InfoMenuScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   // app properties
-  double scrWidth;
-  double scrHeight;
-  double textScale;
+  double scrWidth = 0;
+  double scrHeight = 0;
+  double textScale = 1;
 
   // drawer properties
-  double drawerWidth;
+  double drawerWidth = 0;
 
   // the cardMinWidth is small enough that the user can see a bit of the next card
   final double cardMinWidth = 143;
@@ -35,9 +35,9 @@ class _InfoMenuScreenState extends State<InfoMenuScreen> {
   // the cardMaxHeight isn't too big, so the user doesn't need to scroll for too long
   final double cardMaxHeight = 300;
 
-  double cardWidth;
-  double cardHeight;
-  double cardMaxWidth;
+  double cardWidth = 0;
+  double cardHeight = 0;
+  double cardMaxWidth = 0;
 
   // card text properties
   final double textMinWidth = 102;
@@ -63,7 +63,7 @@ class _InfoMenuScreenState extends State<InfoMenuScreen> {
   void calcDimensions(Orientation orientation) {
     this.scrWidth = MediaQuery.of(context).size.width;
     this.scrHeight = MediaQuery.of(context).size.height;
-    this.textScale = MediaQuery.of(context).textScaleFactor;
+    this.textScale = MediaQuery.of(context).textScaler.scale(1);
 
     double cardNewMinWidth = (this.textMinWidth * this.textScale) + Styles.textPadding * 2;
 
@@ -166,7 +166,7 @@ class _InfoMenuScreenState extends State<InfoMenuScreen> {
                     child: GestureDetector(
                       onTap: () {
                         setState(() {
-                          _scaffoldKey.currentState.openDrawer();
+                          _scaffoldKey.currentState?.openDrawer();
                         });
                       },
                       child: DghaIcon(
@@ -200,7 +200,7 @@ class _InfoMenuScreenState extends State<InfoMenuScreen> {
   }
 
   List<Widget> _buildCards(List<InfoMenuCardData> cardsData, bool isSeparated) {
-    List<Widget> cards = new List<Widget>();
+    List<Widget> cards = <Widget>[];
 
     for (int i = 0; i < cardsData.length; i++) {
       Widget w = InfoCard(

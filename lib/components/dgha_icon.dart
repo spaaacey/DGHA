@@ -9,32 +9,30 @@ class DghaIcon extends StatelessWidget {
   final double paddingPadding;
   final double padding;
 
-  DghaIcon({
-    @required this.icon,
+  const DghaIcon({
+    required this.icon,
     this.iconColor = Styles.yellow,
     this.backgroundColor = Styles.midnightBlue,
     this.size = Styles.iconSize,
     this.paddingPadding = Styles.iconPaddingPadding,
     this.padding = Styles.iconPadding,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(paddingPadding != null
-          ? this.paddingPadding
-          : Styles.iconPaddingPadding),
+      padding: EdgeInsets.all(paddingPadding),
       child: Container(
-        padding:
-            EdgeInsets.all(padding != null ? this.padding : Styles.iconPadding),
+        padding: EdgeInsets.all(padding),
         decoration: BoxDecoration(
-          color: this.backgroundColor,
-          borderRadius: BorderRadius.all(Radius.circular(1000)),
+          color: backgroundColor,
+          borderRadius: const BorderRadius.all(Radius.circular(1000)),
         ),
         child: Icon(
-          this.icon,
-          size: size != null ? size : Styles.iconSize,
-          color: this.iconColor,
+          icon,
+          size: size,
+          color: iconColor,
         ),
       ),
     );

@@ -14,6 +14,6 @@ class ReviewPlace {
     this.averageAmenitiesRating = 0,
     this.averageServiceRating = 0,
     this.count = 0,
-    this.reviews,
+    this.reviews = const <ReviewData>[],
   });
 }

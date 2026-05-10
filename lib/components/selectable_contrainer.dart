@@ -3,24 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SelectableContainer extends StatelessWidget {
-  final List<String> text;
+  final List<String>? text;
 
-  SelectableContainer({this.text});
+  const SelectableContainer({this.text, super.key});
 
   void _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     } else {
-      throw "Cound not launch $url";
+      throw "Could not launch $url";
     }
   }
 
   List<Widget> lines() {
-    List<Widget> widgets = new List<Widget>();
+    List<Widget> widgets = <Widget>[];
+    final lines = text ?? [];
 
-    for (int i = 0; i < this.text.length; i++) {
-      List<String> words = this.text[i].split(" ");
-      String newLine = this.text[i];
+    for (int i = 0; i < lines.length; i++) {
+      List<String> words = lines[i].split(" ");
+      String newLine = lines[i];
       TextStyle textStyle = Styles.pStyle;
 
       bool isBulletPoint = false;

@@ -31,30 +31,26 @@ class _UserRatingScreenState extends State<UserRatingScreen> {
 
   int maxNavPos = 0;
   int currentNavPos = 0;
-  Widget currentPage;
+  Widget? currentPage;
   final pageController = PageController(
     initialPage: 0,
     keepPage: false,
   );
 
-  //Initialize ratingPages
-  UserRatingContainer overallRatingScreen;
-  UserRatingContainer customerServiceRatingScreen;
-  UserRatingContainer amenitiesRatingScreen;
-  UserRatingContainer locationRatingScreen;
-  CommentSection commentSectionScreen;
+  UserRatingContainer? overallRatingScreen;
+  UserRatingContainer? customerServiceRatingScreen;
+  UserRatingContainer? amenitiesRatingScreen;
+  UserRatingContainer? locationRatingScreen;
+  CommentSection? commentSectionScreen;
 
-  //Store Rating Vairables
   double overallRating = 0;
   double customerServiceRating = 0;
   double amenitiesRating = 0;
   double locationRating = 0;
   String comment = "";
 
-  //Comment Text Controller
-  TextEditingController commentController = new TextEditingController();
+  final TextEditingController commentController = TextEditingController();
 
-  //Loading screen variables
   bool isLoading = false;
   bool showLoadingText = false;
   String loadingText = "Sending...";
@@ -66,104 +62,91 @@ class _UserRatingScreenState extends State<UserRatingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //-------------------- Rating PageView Screens --------------------//
-    //----------Overall Rating
-    overallRatingScreen = new UserRatingContainer(
+    overallRatingScreen = UserRatingContainer(
       title: "Overall",
       buttonTitle: "Next",
       hintText:
           "Give an overall rating out of 5 on your experience at this location.",
-      //If the page already has a rating, grab that from the object
-      rating: overallRatingScreen != null ? overallRatingScreen.rating : 0,
+      rating: overallRatingScreen?.rating ?? 0,
       nextPageName: "Customer Service rating",
       onPressed: () {
-        if (overallRatingScreen.rating != 0) {
+        if ((overallRatingScreen?.rating ?? 0) != 0) {
           setState(() {
             if (maxNavPos < 1) maxNavPos = 1;
             currentNavPos = 1;
 
-            overallRating = overallRatingScreen.rating;
+            overallRating = overallRatingScreen?.rating ?? 0;
             currentRatingPage = RatingPagesEnum.CustomerService;
           });
-          //pageController.jumpToPage(1);
         }
       },
     );
-    //----------Customer Service Rating
-    customerServiceRatingScreen = new UserRatingContainer(
+
+    customerServiceRatingScreen = UserRatingContainer(
       title: "Customer Service",
       buttonTitle: "Next",
       hintText:
           "Give a score out of 5 on the customer service provided to you at this location.",
-      //If the page already has a rating, grab that from the object
-      rating: customerServiceRatingScreen != null
-          ? customerServiceRatingScreen.rating
-          : 0,
+      rating: customerServiceRatingScreen?.rating ?? 0,
       nextPageName: "Amenities rating",
       onPressed: () {
-        if (customerServiceRatingScreen.rating != 0) {
+        if ((customerServiceRatingScreen?.rating ?? 0) != 0) {
           setState(() {
             if (maxNavPos < 2) maxNavPos = 2;
             currentNavPos = 2;
 
-            customerServiceRating = customerServiceRatingScreen.rating;
+            customerServiceRating = customerServiceRatingScreen?.rating ?? 0;
             currentRatingPage = RatingPagesEnum.Amenities;
           });
-          //pageController.jumpToPage(2);
         }
       },
     );
-    //----------Amenities Rating
-    amenitiesRatingScreen = new UserRatingContainer(
+
+    amenitiesRatingScreen = UserRatingContainer(
       title: "Amenities",
       buttonTitle: "Next",
       hintText: "Give a score out of 5 on the amenities here at this location.",
-      //If the page already has a rating, grab that from the object
-      rating: amenitiesRatingScreen != null ? amenitiesRatingScreen.rating : 0,
+      rating: amenitiesRatingScreen?.rating ?? 0,
       nextPageName: "Location rating",
       onPressed: () {
-        if (amenitiesRatingScreen.rating != 0) {
+        if ((amenitiesRatingScreen?.rating ?? 0) != 0) {
           setState(() {
             if (maxNavPos < 3) maxNavPos = 3;
             currentNavPos = 3;
 
-            amenitiesRating = amenitiesRatingScreen.rating;
+            amenitiesRating = amenitiesRatingScreen?.rating ?? 0;
             currentRatingPage = RatingPagesEnum.Location;
           });
-          //pageController.jumpToPage(3);
         }
       },
     );
-    //----------Location Rating
-    locationRatingScreen = new UserRatingContainer(
+
+    locationRatingScreen = UserRatingContainer(
       title: "Location",
       buttonTitle: "Next",
       hintText:
           "Give a score out of 5 on the accessibility and ease of access to this location.",
-      //If the page already has a rating, grab that from the object
-      rating: locationRatingScreen != null ? locationRatingScreen.rating : 0,
+      rating: locationRatingScreen?.rating ?? 0,
       nextPageName: "Comment",
       onPressed: () {
-        if (locationRatingScreen.rating != 0) {
+        if ((locationRatingScreen?.rating ?? 0) != 0) {
           setState(() {
             if (maxNavPos < 4) maxNavPos = 4;
             currentNavPos = 4;
 
-            locationRating = locationRatingScreen.rating;
+            locationRating = locationRatingScreen?.rating ?? 0;
             currentRatingPage = RatingPagesEnum.Comment;
           });
-          //pageController.jumpToPage(4);
         }
       },
     );
-    //---------- NOTE: Comment Section
-    commentSectionScreen = new CommentSection(
+
+    commentSectionScreen = CommentSection(
       title: "Comment (Optional)",
       controller: commentController,
       hintText:
           "Add a comment to your review to give more detail on your experience. This is optional.",
       btnColor: isLoading ? Styles.grey : Styles.midnightBlue,
-      // --------- NOTE: Submission
       onPressed: () async {
         setState(() {
           this.isLoading = true;
@@ -178,37 +161,31 @@ class _UserRatingScreenState extends State<UserRatingScreen> {
 
           comment = commentController.text;
 
-          await DghaApi.postReview(
-            widget.placeData.placeId,
+          final response = await DghaApi.postReview(
+            widget.placeData.placeId ?? '',
             overallRating.toInt(),
             locationRating.toInt(),
             amenitiesRating.toInt(),
             customerServiceRating.toInt(),
             comment,
-          ).then((response) {
-
-            // new review is added
-            if (response.statusCode == 201) {
-
-              // send back the Place Details Screen if user has left a comment
-              // true = user have left a comment
-              Navigator.pop(context, comment != "" ? true : false); 
-              setState(() {
-                this.isLoading = false;
-                this.showLoadingText = false;
-              });
-            } else if (response.statusCode == 409) {
-              setState(() {
-                this.isLoading = false;
-                this.loadingText = "You have already left a review";
-              });
-            } else {
-              setState(() {
-                this.isLoading = false;
-                this.loadingText = response.reasonPhrase;
-              });
-            }
-          });
+          );
+          if (response?.statusCode == 201) {
+            Navigator.pop(context, comment != "" ? true : false);
+            setState(() {
+              this.isLoading = false;
+              this.showLoadingText = false;
+            });
+          } else if (response?.statusCode == 409) {
+            setState(() {
+              this.isLoading = false;
+              this.loadingText = "You have already left a review";
+            });
+          } else {
+            setState(() {
+              this.isLoading = false;
+              this.loadingText = response?.reasonPhrase ?? 'Error';
+            });
+          }
 
           setState(() {
             this.isSubmittingReview = false;
@@ -241,7 +218,6 @@ class _UserRatingScreenState extends State<UserRatingScreen> {
         child: Container(
           child: ListView(
             children: <Widget>[
-              //----------App Bar
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
@@ -263,9 +239,7 @@ class _UserRatingScreenState extends State<UserRatingScreen> {
                   },
                 ),
               ),
-              //----------Loading Text
               buildLoadingWidget(),
-              //----------Page Navigation
               Padding(
                 padding: const EdgeInsets.only(
                     left: 15, right: 15, top: 20, bottom: 20),
@@ -309,30 +283,17 @@ class _UserRatingScreenState extends State<UserRatingScreen> {
                 ),
               ),
 
-              //-------------------------- NOTE: PAGES
               currentRatingPage == RatingPagesEnum.Overall
-                  ? overallRatingScreen
+                  ? overallRatingScreen!
                   : currentRatingPage == RatingPagesEnum.CustomerService
-                      ? customerServiceRatingScreen
+                      ? customerServiceRatingScreen!
                       : currentRatingPage == RatingPagesEnum.Amenities
-                          ? amenitiesRatingScreen
+                          ? amenitiesRatingScreen!
                           : currentRatingPage == RatingPagesEnum.Location
-                              ? locationRatingScreen
+                              ? locationRatingScreen!
                               : currentRatingPage == RatingPagesEnum.Comment
-                                  ? commentSectionScreen
+                                  ? commentSectionScreen!
                                   : Container(height: 0),
-
-              // PageView(
-              //   controller: pageController,
-              //   physics: NeverScrollableScrollPhysics(),
-              //   children: <Widget>[
-              //     overallRatingScreen,
-              //     customerServiceRatingScreen,
-              //     amenitiesRatingScreen,
-              //     locationRatingScreen,
-              //     commentSectionScreen,
-              //   ],
-              // ),
             ],
           ),
         ),

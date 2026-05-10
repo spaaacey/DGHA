@@ -2,9 +2,9 @@ import 'package:dgha/misc/styles.dart';
 import 'package:flutter/material.dart';
 
 class HeaderRow extends StatelessWidget {
-  final String text;
+  final String? text;
 
-  HeaderRow({this.text});
+  const HeaderRow({this.text, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class HeaderRow extends StatelessWidget {
         ),
         Container(
           child: Text(
-            text,
+            text ?? '',
             style: Styles.h2Style,
           ),
         ),

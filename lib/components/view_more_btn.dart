@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 class ViewMoreBtn extends StatelessWidget {
   final bool showCondition;
-  final bool loadingCondition; 
-  final Function() onTap; 
-  final double bottomPadding; 
+  final bool loadingCondition;
+  final Function() onTap;
+  final double bottomPadding;
 
-  ViewMoreBtn({@required this.showCondition, @required this.loadingCondition, @required this.onTap, this.bottomPadding = 0});
+  const ViewMoreBtn({required this.showCondition, required this.loadingCondition, required this.onTap, this.bottomPadding = 0, super.key});
 
   @override
   Widget build(BuildContext context) {

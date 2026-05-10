@@ -6,11 +6,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 //The component for each rating page (overall, customer service, etc)
 class UserRatingContainer extends StatefulWidget {
-  final String title;
+  final String? title;
   final String buttonTitle;
-  final Function onPressed;
+  final Function? onPressed;
   final String hintText;
-  final String nextPageName;
+  final String? nextPageName;
   double rating;
 
   UserRatingContainer({
@@ -20,6 +20,7 @@ class UserRatingContainer extends StatefulWidget {
     this.rating = 0,
     this.nextPageName,
     this.hintText = "",
+    super.key,
   });
 
   @override
@@ -41,7 +42,7 @@ class _UserRatingContainerState extends State<UserRatingContainer> {
             children: <Widget>[
               //---------- NOTE: Title
               Text(
-                widget.title,
+                widget.title ?? '',
                 style: Styles.h2Style,
               ),
               SizedBox(
@@ -67,7 +68,7 @@ class _UserRatingContainerState extends State<UserRatingContainer> {
               ),
               //----------Next Button
               GestureDetector(
-                onTap: widget.onPressed,
+                onTap: widget.onPressed != null ? () => widget.onPressed!() : null,
                 child: Semantics(
                   label: "Next",
                   hint: "Double tap to go to the ${widget.nextPageName} page",
@@ -109,13 +110,13 @@ class _UserRatingContainerState extends State<UserRatingContainer> {
 
 // --------------------------- NOTE: Comment Widget
 class CommentSection extends StatefulWidget {
-  final String title;
-  final Function onPressed;
-  final TextEditingController controller;
+  final String? title;
+  final Function? onPressed;
+  final TextEditingController? controller;
   final String hintText;
-  Color btnColor;
+  Color? btnColor;
 
-  CommentSection({this.title, this.onPressed, this.controller, this.hintText = "", this.btnColor});
+  CommentSection({this.title, this.onPressed, this.controller, this.hintText = "", this.btnColor, super.key});
 
   @override
   _CommentSectionState createState() => _CommentSectionState();
@@ -124,7 +125,7 @@ class CommentSection extends StatefulWidget {
 class _CommentSectionState extends State<CommentSection> {
   @override
   Widget build(BuildContext context) {
-    Color color = widget.btnColor;
+    Color color = widget.btnColor ?? Styles.midnightBlue;
 
     return Semantics(
       explicitChildNodes: true,
@@ -139,10 +140,10 @@ class _CommentSectionState extends State<CommentSection> {
                   children: <Widget>[
                     //----------Title
                     Text(
-                      widget.title,
+                      widget.title ?? '',
                       style: Styles.h2Style,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                   ],
@@ -179,7 +180,7 @@ class _CommentSectionState extends State<CommentSection> {
                 ),
                 //---------- NOTE: Submit Button
                 GestureDetector(
-                  onTap: widget.onPressed,
+                  onTap: widget.onPressed != null ? () => widget.onPressed!() : null,
                   child: Semantics(
                     label: "Submit",
                     hint: "Double tap to submit your review",

@@ -20,7 +20,7 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  final TextEditingController _txtController = new TextEditingController();
+  final TextEditingController _txtController = TextEditingController();
 
   bool isLoading = false;
 
@@ -42,7 +42,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   //---------- NOTE: Place Name
                   Container(
                     child: Text(
-                      widget.placeData.name,
+                      widget.placeData.name ?? '',
                       style: Styles.h2Style,
                     ),
                   ),
@@ -50,7 +50,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   // --------- NOTE: Address
                   Container(
                     child: Text(
-                      widget.placeData.address,
+                      widget.placeData.address ?? '',
                       style: Styles.pStyle,
                     ),
                   ),
@@ -67,7 +67,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   Semantics(
                     label: "Comment",
                     hint:
-                        "Double tap to give more information on why you're reporting ${widget.placeData.name}",
+                        "Double tap to give more information on why you're reporting ${widget.placeData.name ?? ''}",
                     excludeSemantics: true,
                     child: TextField(
                       controller: _txtController,
@@ -98,12 +98,12 @@ class _ReportScreenState extends State<ReportScreen> {
                           this.isLoading = true;
                         });
 
-                        Response response = await DghaApi.postComplaint(
-                          widget.placeData.placeId,
+                        final response = await DghaApi.postComplaint(
+                          widget.placeData.placeId ?? '',
                           _txtController.text,
                         );
 
-                        if (response.statusCode == 201) {
+                        if (response?.statusCode == 201) {
                           Navigator.of(context).pop();
                           setState(() {
                             this.isLoading = false;
@@ -113,7 +113,7 @@ class _ReportScreenState extends State<ReportScreen> {
                           setState(() {
                             this.isLoading = false;
                           });
-                          print("Error: ${response.statusCode}");
+                          print("Error: ${response?.statusCode}");
                         }
                       },
                     ),

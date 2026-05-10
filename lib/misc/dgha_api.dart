@@ -6,23 +6,17 @@ import 'package:http/http.dart' as http;
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Class to handle all calls to the DGHA API
 class DghaApi {
   static final String rootUrl = "https://dgha-api.azurewebsites.net";
-  static oauth2.Client currentClient;
+  static oauth2.Client? currentClient;
 
-//------------------------------ Note: Get UserID from token ------------------------------//
   static Map<String, dynamic> parseJwt(String token) {
     final parts = token.split('.');
-    if (parts.length != 3) {
-      throw Exception('invalid token');
-    }
+    if (parts.length != 3) throw Exception('invalid token');
 
     final payload = _decodeBase64(parts[1]);
     final payloadMap = json.decode(payload);
-    if (payloadMap is! Map<String, dynamic>) {
-      throw Exception('invalid payload');
-    }
+    if (payloadMap is! Map<String, dynamic>) throw Exception('invalid payload');
 
     return payloadMap;
   }
@@ -40,199 +34,115 @@ class DghaApi {
         output += '=';
         break;
       default:
-        throw Exception('Illegal base64url string!"');
+        throw Exception('Illegal base64url string!');
     }
 
     return utf8.decode(base64Url.decode(output));
   }
 
-  //------------------------------ Note: Authentication ------------------------------//
-  static Future<oauth2.Client> signIn({String email, String password}) async {
-    // Authentication parameters
+  static Future<oauth2.Client?> signIn({String? email, String? password}) async {
     Uri tokenEndpoint = Uri.parse(
         "https://dgha-identityserver.azurewebsites.net/connect/token");
     String identifier = "ro.client";
     String secret = "secret";
 
-    // Get credientials data
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (email == null && password == null) {
-      String credString = prefs.getString('credentials');
+      String? credString = prefs.getString('credentials');
       if (credString != null && credString != "") {
-        // Get client from credentials file
-        oauth2.Credentials credentials =
-            new oauth2.Credentials.fromJson(credString);
+        oauth2.Credentials credentials = oauth2.Credentials.fromJson(credString);
 
         if (!credentials.isExpired) {
           currentClient = oauth2.Client(credentials,
               identifier: identifier, secret: secret);
-
-          // await refreshCredentials();
-
           return currentClient;
         } else {
           signOut();
-          print("Credentials don't exist");
           return null;
         }
       } else {
-        print("Credentials don't exist");
         return null;
       }
     } else {
-      // Request client from token endpoint
       currentClient = await oauth2.resourceOwnerPasswordGrant(
         tokenEndpoint,
-        email,
-        password,
+        email!,
+        password!,
         identifier: identifier,
         secret: secret,
       );
 
-      prefs.setString('credentials', currentClient.credentials.toJson());
-
-      currentClient = currentClient;
+      prefs.setString('credentials', currentClient!.credentials.toJson());
       return currentClient;
     }
   }
 
-  // Couldn't figure out how to get refreshing working
-  // static Future<bool> refreshCredentials() async {
-  //   print(currentClient.credentials.expiration);
-  //   if (currentClient.credentials.isExpired) {
-  //     oauth2.Client client = await currentClient.refreshCredentials();
-  //     currentClient = client;
-
-  //     print("Refreshed");
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
-
   static void signOut() async {
     currentClient = null;
-
-    // Empty credentials file
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('credentials', "");
   }
 
-  //------------------------------ Note: Accounts ------------------------------//
-  static Future<http.Response> postAccount(
-    String email,
-    String password,
-  ) async {
-    Map<String, dynamic> data = {
-      "email": email,
-      "password": password,
-    };
+  static Future<http.Response> postAccount(String email, String password) async {
+    Map<String, dynamic> data = {"email": email, "password": password};
 
-    http.Response response = await http.post(
-      "$rootUrl/Accounts",
+    return http.post(
+      Uri.parse("$rootUrl/Accounts"),
       body: jsonEncode(data),
       headers: {"content-type": "application/json"},
     );
-
-    return response;
   }
 
-  static Future<Account> getAccount() async {
-    if (currentClient != null) {
-      //await refreshCredentials();
+  static Future<Account?> getAccount() async {
+    if (currentClient == null) return null;
 
-      http.Response response = await currentClient.get(
-        "$rootUrl/Accounts/${parseJwt(currentClient.credentials.accessToken)['sub']}",
-        headers: {
-          "content-type": "application/json",
-        },
-      );
+    http.Response response = await currentClient!.get(
+      Uri.parse("$rootUrl/Accounts/${parseJwt(currentClient!.credentials.accessToken)['sub']}"),
+      headers: {"content-type": "application/json"},
+    );
 
-      //Prevent decoding errors with a blank body
-      if (response.body == "") {
-        return Account();
-      }
+    if (response.body == "") return Account();
 
-      var json = jsonDecode(response.body);
-      Account account = new Account(id: json['id'], email: json['email']);
-
-      return account;
-    } else {
-      print("User not logged in");
-      return null;
-    }
+    var decoded = jsonDecode(response.body);
+    return Account(id: decoded['id'], email: decoded['email']);
   }
 
-  static Future<http.Response> deleteAccount() async {
-    if (currentClient != null) {
-      //await refreshCredentials();
+  static Future<http.Response?> deleteAccount() async {
+    if (currentClient == null) return null;
 
-      http.Response response = await currentClient.delete(
-        "$rootUrl/Accounts/${parseJwt(currentClient.credentials.accessToken)['sub']}",
-        headers: {
-          "content-type": "application/json",
-        },
-      );
-
-      return response;
-    } else {
-      print("User not logged in");
-      return null;
-    }
+    return currentClient!.delete(
+      Uri.parse("$rootUrl/Accounts/${parseJwt(currentClient!.credentials.accessToken)['sub']}"),
+      headers: {"content-type": "application/json"},
+    );
   }
 
-  static Future<http.Response> updatePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {
-    if (currentClient != null) {
-      //await refreshCredentials();
+  static Future<http.Response?> updatePassword(String currentPassword, String newPassword) async {
+    if (currentClient == null) return null;
 
-      http.Response response = await currentClient.put(
-        "$rootUrl/Accounts/${parseJwt(currentClient.credentials.accessToken)['sub']}/UpdatePassword?currentPassword=$currentPassword&newPassword=$newPassword",
-        headers: {
-          "content-type": "application/json",
-        },
-      );
-
-      return response;
-    } else {
-      print("User not logged in");
-      return null;
-    }
+    return currentClient!.put(
+      Uri.parse("$rootUrl/Accounts/${parseJwt(currentClient!.credentials.accessToken)['sub']}/UpdatePassword?currentPassword=$currentPassword&newPassword=$newPassword"),
+      headers: {"content-type": "application/json"},
+    );
   }
 
-  //------------------------------ Note: Complaints ------------------------------//
-  static Future<http.Response> postComplaint(
-    String placeID,
-    String comment,
-  ) async {
-    if (currentClient != null) {
-      //await refreshCredentials();
+  static Future<http.Response?> postComplaint(String placeID, String comment) async {
+    if (currentClient == null) return null;
 
-      Map<String, dynamic> data = {
-        "userID": parseJwt(currentClient.credentials.accessToken)['sub'],
-        "placeID": placeID,
-        "comment": comment,
-      };
+    Map<String, dynamic> data = {
+      "userID": parseJwt(currentClient!.credentials.accessToken)['sub'],
+      "placeID": placeID,
+      "comment": comment,
+    };
 
-      http.Response response = await currentClient.post(
-        "$rootUrl/Complaints",
-        body: jsonEncode(data),
-        headers: {"content-type": "application/json"},
-      );
-
-      return response;
-    } else {
-      print("User not logged in");
-      return null;
-    }
+    return currentClient!.post(
+      Uri.parse("$rootUrl/Complaints"),
+      body: jsonEncode(data),
+      headers: {"content-type": "application/json"},
+    );
   }
-  //------------------------------ Note: Locations ------------------------------//
 
-  //------------------------------ Note: Reviews ------------------------------//
-  static Future<http.Response> postReview(
+  static Future<http.Response?> postReview(
     String placeId,
     int overallRating,
     int locationRating,
@@ -240,111 +150,83 @@ class DghaApi {
     int serviceRating,
     String comment,
   ) async {
-    if (currentClient != null) {
-      //await refreshCredentials();
+    if (currentClient == null) return null;
 
-      Map<String, dynamic> data = {
-        "userID": parseJwt(currentClient.credentials.accessToken)['sub'],
-        "placeID": placeId,
-        "overallRating": overallRating,
-        "locationRating": locationRating,
-        "amentitiesRating": amenitiesRating,
-        "serviceRating": serviceRating,
-        "comment": comment,
-      };
+    Map<String, dynamic> data = {
+      "userID": parseJwt(currentClient!.credentials.accessToken)['sub'],
+      "placeID": placeId,
+      "overallRating": overallRating,
+      "locationRating": locationRating,
+      "amentitiesRating": amenitiesRating,
+      "serviceRating": serviceRating,
+      "comment": comment,
+    };
 
-      http.Response response = await currentClient.post(
-        "$rootUrl/Reviews",
-        body: jsonEncode(data),
-        headers: {"content-type": "application/json"},
-      );
-
-      return response;
-    } else {
-      print("User not logged in");
-      return null;
-    }
+    return currentClient!.post(
+      Uri.parse("$rootUrl/Reviews"),
+      body: jsonEncode(data),
+      headers: {"content-type": "application/json"},
+    );
   }
 
   static Future<ReviewPlace> getReviewsFromPlaceId(String placeId) async {
     http.Response response = await http.get(
-      "$rootUrl/Reviews/placeId/$placeId",
-      headers: {
-        "content-type": "application/json",
-      },
+      Uri.parse("$rootUrl/Reviews/placeId/$placeId"),
+      headers: {"content-type": "application/json"},
     );
 
-    //Prevent decoding errors with a blank body
     if (response.body == "" || response.statusCode != 200) {
-      print(response.statusCode);
-      return ReviewPlace(reviews: new List<ReviewData>());
+      return ReviewPlace(reviews: <ReviewData>[]);
     }
 
-    Map<String, dynamic> json = jsonDecode(response.body);
+    Map<String, dynamic> decoded = jsonDecode(response.body);
+    List<ReviewData> userReviews = <ReviewData>[];
 
-    //Get all individual reviews
-    List<ReviewData> userReviews = new List<ReviewData>();
-    for (int i = 0; i < json['reviews'].length; i++) {
-      ReviewData r = new ReviewData(
-        placeId: json['reviews'][i]['placeId'],
-        userId: json['reviews'][i]['userId'],
-        timeAdded: json['reviews'][i]['timeAdded'],
-        comment: json['reviews'][i]['comment'],
-        overallRating: json['reviews'][i]['overallRating'],
-        locationRating: json['reviews'][i]['locationRating'],
-        custServRating: json['reviews'][i]['serviceRating'],
-        amenitiesRating: json['reviews'][i]['amenitiesRating'],
-      );
-
-      userReviews.add(r);
+    for (int i = 0; i < decoded['reviews'].length; i++) {
+      userReviews.add(ReviewData(
+        placeId: decoded['reviews'][i]['placeId'],
+        userId: decoded['reviews'][i]['userId'],
+        timeAdded: decoded['reviews'][i]['timeAdded'],
+        comment: decoded['reviews'][i]['comment'],
+        overallRating: decoded['reviews'][i]['overallRating'],
+        locationRating: decoded['reviews'][i]['locationRating'],
+        custServRating: decoded['reviews'][i]['serviceRating'],
+        amenitiesRating: decoded['reviews'][i]['amenitiesRating'],
+      ));
     }
 
-    ReviewPlace reviews = new ReviewPlace(
-      averageRating: json['averageRating'].toDouble(),
-      averageLocationRating: json['averageLocationRating'].toDouble(),
-      averageAmenitiesRating: json['averageAmentitiesRating'].toDouble(),
-      averageServiceRating: json['averageServiceRating'].toDouble(),
-      count: json['count'],
+    return ReviewPlace(
+      averageRating: decoded['averageRating'].toDouble(),
+      averageLocationRating: decoded['averageLocationRating'].toDouble(),
+      averageAmenitiesRating: decoded['averageAmentitiesRating'].toDouble(),
+      averageServiceRating: decoded['averageServiceRating'].toDouble(),
+      count: decoded['count'],
       reviews: userReviews,
     );
-
-    return reviews;
   }
 
-  static Future<List<ReviewData>> getReviewsFromPlaceIdAndSet(
-    String placeId,
-    int setIndex,
-  ) async {
+  static Future<List<ReviewData>> getReviewsFromPlaceIdAndSet(String placeId, int setIndex) async {
     http.Response response = await http.get(
-      "$rootUrl/Reviews/placeId/$placeId/$setIndex",
-      headers: {
-        "content-type": "application/json",
-      },
+      Uri.parse("$rootUrl/Reviews/placeId/$placeId/$setIndex"),
+      headers: {"content-type": "application/json"},
     );
 
-    //Prevent decoding errors with a blank body
-    if (response.body == "" || response.statusCode != 200) {
-      print(response.statusCode);
-      return List<ReviewData>();
-    }
+    if (response.body == "" || response.statusCode != 200) return <ReviewData>[];
 
-    List<dynamic> json = jsonDecode(response.body);
+    List<dynamic> decoded = jsonDecode(response.body);
+    List<ReviewData> userReviews = <ReviewData>[];
 
-    //Get all reviews
-    List<ReviewData> userReviews = new List<ReviewData>();
-    for (int i = 0; i < json.length; i++) {
-      ReviewData r = new ReviewData(
-        placeId: json[i]['placeId'],
-        userId: json[i]['userId'],
-        timeAdded: json[i]['timeAdded'],
-        comment: json[i]['comment'],
-        overallRating: json[i]['overallRating'],
-        locationRating: json[i]['locationRating'],
-        custServRating: json[i]['serviceRating'],
-        amenitiesRating: json[i]['amenitiesRating'],
-      );
-
-      userReviews.add(r);
+    for (int i = 0; i < decoded.length; i++) {
+      userReviews.add(ReviewData(
+        placeId: decoded[i]['placeId'],
+        userId: decoded[i]['userId'],
+        timeAdded: decoded[i]['timeAdded'],
+        comment: decoded[i]['comment'],
+        overallRating: decoded[i]['overallRating'],
+        locationRating: decoded[i]['locationRating'],
+        custServRating: decoded[i]['serviceRating'],
+        amenitiesRating: decoded[i]['amenitiesRating'],
+      ));
     }
 
     return userReviews;
@@ -352,118 +234,85 @@ class DghaApi {
 
   static Future<List<ReviewData>> getReviewsFromUser() async {
     http.Response response = await http.get(
-      "$rootUrl/Reviews/userId/${parseJwt(currentClient.credentials.accessToken)['sub']}",
-      headers: {
-        "content-type": "application/json",
-      },
+      Uri.parse("$rootUrl/Reviews/userId/${parseJwt(currentClient!.credentials.accessToken)['sub']}"),
+      headers: {"content-type": "application/json"},
     );
 
-    //Prevent decoding errors with a blank body
-    if (response.body == "") {
-      return new List<ReviewData>();
-    }
+    if (response.body == "") return <ReviewData>[];
 
-    Map<String, dynamic> json = jsonDecode(response.body);
+    Map<String, dynamic> decoded = jsonDecode(response.body);
+    List<ReviewData> userReviews = <ReviewData>[];
 
-    List<ReviewData> userReviews = new List<ReviewData>();
-    for (int i = 0; i < json.length; i++) {
-      ReviewData r = new ReviewData(
-        placeId: json[i]['placeId'],
-        userId: json[i]['userId'],
-        timeAdded: json[i]['timeAdded'],
-        comment: json[i]['comment'],
-        overallRating: json[i]['overallRating'],
-        locationRating: json[i]['locationRating'],
-        custServRating: json[i]['serviceRating'],
-        amenitiesRating: json[i]['amenitiesRating'],
-      );
-
-      userReviews.add(r);
+    for (int i = 0; i < decoded.length; i++) {
+      userReviews.add(ReviewData(
+        placeId: decoded[i]['placeId'],
+        userId: decoded[i]['userId'],
+        timeAdded: decoded[i]['timeAdded'],
+        comment: decoded[i]['comment'],
+        overallRating: decoded[i]['overallRating'],
+        locationRating: decoded[i]['locationRating'],
+        custServRating: decoded[i]['serviceRating'],
+        amenitiesRating: decoded[i]['amenitiesRating'],
+      ));
     }
 
     return userReviews;
   }
 
-  static Future<ReviewData> getReviewFromPlaceIdAndUserId(
-    String placeId,
-    String userId,
-  ) async {
+  static Future<ReviewData> getReviewFromPlaceIdAndUserId(String placeId, String userId) async {
     http.Response response = await http.get(
-      "$rootUrl/Reviews/$placeId/$userId",
-      headers: {
-        "content-type": "application/json",
-      },
+      Uri.parse("$rootUrl/Reviews/$placeId/$userId"),
+      headers: {"content-type": "application/json"},
     );
 
-    //Prevent decoding errors with a blank body
-    if (response.body == "") {
-      return ReviewData();
-    }
+    if (response.body == "") return ReviewData();
 
-    Map<String, dynamic> json = jsonDecode(response.body);
-    ReviewData review = new ReviewData(
-      placeId: json['placeId'],
-      userId: json['userId'],
-      timeAdded: json['timeAdded'],
-      comment: json['comment'],
-      overallRating: json['overallRating'],
-      locationRating: json['locationRating'],
-      custServRating: json['serviceRating'],
-      amenitiesRating: json['amenitiesRating'],
+    Map<String, dynamic> decoded = jsonDecode(response.body);
+    return ReviewData(
+      placeId: decoded['placeId'],
+      userId: decoded['userId'],
+      timeAdded: decoded['timeAdded'],
+      comment: decoded['comment'],
+      overallRating: decoded['overallRating'],
+      locationRating: decoded['locationRating'],
+      custServRating: decoded['serviceRating'],
+      amenitiesRating: decoded['amenitiesRating'],
     );
-
-    return review;
   }
 
-  static Future<http.Response> updateReview(
+  static Future<http.Response?> updateReview(
     String placeId,
     int overallRating,
     int locationRating,
     int amenitiesRating,
-    int servicceRating,
+    int serviceRating,
     String comment,
   ) async {
-    if (currentClient != null) {
-      //await refreshCredentials();
+    if (currentClient == null) return null;
 
-      Map<String, dynamic> data = {
-        "userID": parseJwt(currentClient.credentials.accessToken)['sub'],
-        "placeID": placeId,
-        "overallRating": overallRating,
-        "locationRating": locationRating,
-        "amentitiesRating": amenitiesRating,
-        "serviceRating": servicceRating,
-        "comment": comment,
-      };
+    Map<String, dynamic> data = {
+      "userID": parseJwt(currentClient!.credentials.accessToken)['sub'],
+      "placeID": placeId,
+      "overallRating": overallRating,
+      "locationRating": locationRating,
+      "amentitiesRating": amenitiesRating,
+      "serviceRating": serviceRating,
+      "comment": comment,
+    };
 
-      http.Response response = await currentClient.put(
-        "$rootUrl/Reviews/$placeId/${parseJwt(currentClient.credentials.accessToken)['sub']}",
-        body: jsonEncode(data),
-        headers: {"content-type": "application/json"},
-      );
-
-      return response;
-    } else {
-      print("User not logged in");
-      return null;
-    }
+    return currentClient!.put(
+      Uri.parse("$rootUrl/Reviews/$placeId/${parseJwt(currentClient!.credentials.accessToken)['sub']}"),
+      body: jsonEncode(data),
+      headers: {"content-type": "application/json"},
+    );
   }
 
-  static Future<http.Response> deleteReview(String placeId) async {
-    if (currentClient != null) {
-      //await refreshCredentials();
+  static Future<http.Response?> deleteReview(String placeId) async {
+    if (currentClient == null) return null;
 
-      http.Response response = await currentClient.delete(
-        "$rootUrl/Reviews/$placeId/${parseJwt(currentClient.credentials.accessToken)['sub']}",
-        headers: {
-          "content-type": "application/json",
-        },
-      );
-
-      return response;
-    } else {
-      print("User not logged in");
-      return null;
-    }
+    return currentClient!.delete(
+      Uri.parse("$rootUrl/Reviews/$placeId/${parseJwt(currentClient!.credentials.accessToken)['sub']}"),
+      headers: {"content-type": "application/json"},
+    );
   }
 }
