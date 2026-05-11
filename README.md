@@ -2,6 +2,11 @@
 
 A mobile app for guide dog handlers to find and review accessible venues.
 
+[Backend app](https://github.com/jamtowers/DGHA-Backend)
+
+## Demo
+Demo video: https://drive.google.com/file/d/1X5oJNpekoQi6i-ij3tbphAXu04_YEcMl/view
+
 ## Install the app (deprecated)
 
 This was written when the app was deployed for user testing
