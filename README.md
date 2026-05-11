@@ -1,8 +1,11 @@
-# Ruffurees - DGHA App
+# Place rating app for dog guide handlers
 
-A flutter app that allows guide dog owners to rate places according to its accessibility for assistance dogs.
+A mobile app for guide dog handlers to find and review accessible venues.
 
-## Installation
+## Install the app (deprecated)
+
+This was written when the app was deployed for user testing
+
 ### Android
 
 #### 1. Download the APK
@@ -28,15 +31,11 @@ A flutter app that allows guide dog owners to rate places according to its acces
 #### 5. Select "Install Anyway"
 ![QR](assets/install_anyway.jpg)
 
-### iOS
-
-TBA
-
 ## Developers
 
-https://github.com/josephkhaipi
+https://github.com/spaaacey (me, Chu)
 
-https://github.com/leechuyem
+https://github.com/josephkhaipi
 
 https://github.com/jamtowers
 
