@@ -7,6 +7,21 @@ A mobile app for guide dog handlers to find and review accessible venues.
 ## Demo
 Demo video: https://drive.google.com/file/d/1X5oJNpekoQi6i-ij3tbphAXu04_YEcMl/view
 
+## Screenshots
+
+<table>
+<tr>
+  <th width="33%">Explore</th>
+  <th width="33%">Reviews</th>
+  <th width="33%">Information Hub</th>
+</tr>
+<tr>
+  <td width="33%"><img src="readme/explore_view.png" alt="explore view" width="100%"></td>
+  <td width="33%"><img src="readme/reviews_view.png" alt="review view" width="100%"></td>
+  <td width="33%"><img src="readme/Info_hub.png" alt="information hub view" width="100%"></td>
+</tr>
+</table>
+
 ## Install the app (deprecated)
 
 This was written when the app was deployed for user testing
@@ -21,20 +36,20 @@ This was written when the app was deployed for user testing
 
 **QR**
 
-![QR](assets/QR.PNG)
+![QR](readme/QR.PNG)
 
 
 #### 2. Select "Click Here to Install"
-![QR](assets/select_install.jpg)
+![QR](readme/select_install.jpg)
 
 #### 3. Select OK
-![QR](assets/ok.jpg)
+![QR](readme/ok.jpg)
 
 #### 4. Select "Install"
-![QR](assets/install.jpg)
+![QR](readme/install.jpg)
 
 #### 5. Select "Install Anyway"
-![QR](assets/install_anyway.jpg)
+![QR](readme/install_anyway.jpg)
 
 ## Developers
 
